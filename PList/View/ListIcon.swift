@@ -13,6 +13,7 @@ struct ListIcon: View {
                 .resizable()
                 .clipShape(RoundedRectangle(cornerRadius: 20))
                 .frame(width: iconWidth, height: iconHeight)
+                .shadow(radius: 5)
             
             ZStack(alignment: .topLeading) {
 

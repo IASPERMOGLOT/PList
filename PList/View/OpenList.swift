@@ -29,8 +29,19 @@ struct OpenList: View {
                         }
                     }
                     
+                    
                     //FIXME: заменить на кастомный
                     ListIcon(iconWidth: 380, iconHeight: 170)
+                    
+                    Divider()
+                        .overlay(Color.main)
+                        .frame(height: 15)
+                    
+                    //FIXME: сделать кастомные продукты
+                    VStack (spacing: -3){
+                        ProductRow()
+                        ProductRow()
+                    }
                     
                     Spacer()
                         .frame(height: 100)
