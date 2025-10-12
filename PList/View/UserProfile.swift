@@ -34,42 +34,11 @@ struct UserProfile: View {
                 //FIXME: сделать редактируемое имя
                 Text("user name")
                 
-                //FIXME: вынести все кнопки в отдельную форму
-                Button(action: {}) {
-                    Text("Поделиться списком")
-                        .padding()
-                        .font(Font.custom("", size: 15))
-                        .foregroundColor(Color.black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .background(
-                    Rectangle()
-                        .fill(Color.brightGray)
-                )
+                ProfileSettingButton(buttonName: "Поделиться списком")
                 
-                Button(action: {}) {
-                    Text("Получить список")
-                        .padding()
-                        .font(Font.custom("", size: 15))
-                        .foregroundColor(Color.black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .background(
-                    Rectangle()
-                        .fill(Color.brightGray)
-                )
+                ProfileSettingButton(buttonName: "Получить список")
                 
-                Button(action: {}) {
-                    Text("Создать групповой список")
-                        .padding()
-                        .font(Font.custom("", size: 15))
-                        .foregroundColor(Color.black)
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                }
-                .background(
-                    Rectangle()
-                        .fill(Color.brightGray)
-                )
+                ProfileSettingButton(buttonName: "Создать групповой список")
                 
                 
 
