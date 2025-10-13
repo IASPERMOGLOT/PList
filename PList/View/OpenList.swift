@@ -10,16 +10,9 @@ import SwiftUI
 struct OpenList: View {
     var body: some View {
         ZStack (alignment: .bottom){
-            Color.main.ignoresSafeArea()
             ScrollView {
                 VStack {
                     HStack { //плашка профиля и моих списков
-                        Button(action: {}) {
-                            Text("< Списки")
-                                .padding()
-                                .font(Font.custom("villula-regular",size: 20))
-                                .foregroundColor(Color.black) // FIXME: изменять цвет при нажатии
-                        }
                         Spacer()
                         Button(action: {}) {
                             Text("править")
@@ -92,6 +85,7 @@ struct OpenList: View {
             )
             .ignoresSafeArea()
         }
+        .background(Color.main.ignoresSafeArea())
     }
 }
 
