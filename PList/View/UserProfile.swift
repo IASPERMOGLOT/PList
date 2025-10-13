@@ -6,25 +6,6 @@ struct UserProfile: View {
         ScrollView {
             VStack {
                 
-                
-                HStack { //плашка профиля и моих списков
-                    Button(action: {}) {
-                        Text("Профиль")
-                            .padding()
-                            .font(Font.custom("villula-regular",size: 20))
-                            .foregroundColor(Color.black) // FIXME: изменять цвет при нажатии
-                    }
-                    
-                    Spacer()
-                    
-                    Button(action: {}) {
-                        Text("Мои списки")
-                            .padding()
-                            .font(Font.custom("villula-regular",size: 20))
-                            .foregroundColor(Color.black) // FIXME: изменять цвет при нажатии
-                    }
-                }
-                
                 //FIXME: сделать редактируемую иконку
                 Image("userIcon1")
                     .resizable()
