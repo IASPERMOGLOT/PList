@@ -27,6 +27,7 @@ struct UserProfile: View {
                 
             }
         }
+        .background(Color.main)
     }
 }
 

@@ -16,12 +16,12 @@ struct ProfileSettingButton: View {
             Text(buttonName)
                 .padding()
                 .font(Font.custom("", size: 15))
-                .foregroundColor(Color.black)
+                .foregroundColor(Color.white)
                 .frame(maxWidth: .infinity, alignment: .leading)
         }
         .background(
             Rectangle()
-                .fill(Color.brightGray)
+                .fill(Color.green)
         )
     }
 }
