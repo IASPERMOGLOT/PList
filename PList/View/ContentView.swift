@@ -2,7 +2,6 @@ import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        NavigationView {
             ScrollView {
                 
                 VStack {
@@ -47,10 +46,11 @@ struct ContentView: View {
                 }
             }
             .background(Color.main)
-        }
     }
 }
 
 #Preview {
-    ContentView()
+    NavigationView {
+        ContentView()
+    }
 }

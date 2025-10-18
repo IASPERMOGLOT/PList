@@ -1,17 +1,14 @@
-//
-//  PListApp.swift
-//  PList
-//
-//  Created by Александр on 11.10.2025.
-//
-
 import SwiftUI
+import SwiftData
 
 @main
 struct PListApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            NavigationView {
+                ContentView()
+            }
         }
+        .modelContainer(for: [List.self, Product.self, User.self])
     }
 }
