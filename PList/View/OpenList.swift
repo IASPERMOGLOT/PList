@@ -7,15 +7,15 @@ struct OpenList: View {
         ZStack (alignment: .bottom) {
             ScrollView {
                 VStack {
-                    HStack {
-                        Spacer()
-                        NavigationLink(destination: ListSetting(list: list)) {
-                            Text("править")
-                                .padding()
-                                .font(Font.custom("villula-regular",size: 20))
-                                .foregroundColor(Color.black)
-                        }
-                    }
+//                    HStack {
+//                        Spacer()
+//                        NavigationLink(destination: ListSetting(list: list)) {
+//                            Text("править")
+//                                .padding()
+//                                .font(Font.custom("villula-regular",size: 20))
+//                                .foregroundColor(Color.black)
+//                        }
+//                    }
                     
                     ListIcon(list: list, iconWidth: 380, iconHeight: 170)
                     

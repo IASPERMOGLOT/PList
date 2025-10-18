@@ -25,4 +25,22 @@ class List: Identifiable {
         
     }
     
+    func addProduct(title: String, content: String, image: String, expirationDate: Int) {
+        let newProduct = Product(
+            title: title,
+            content: content,
+            image: image,
+            expirationDate: expirationDate
+        )
+        products.append(newProduct)
+        productCount = products.count
+    }
+    
+    func removeProduct(_ product: Product) {
+        if let index = products.firstIndex(where: { $0.id == product.id }) {
+            products.remove(at: index)
+            productCount = products.count
+        }
+    }
+    
 }

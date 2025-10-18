@@ -36,10 +36,6 @@ struct ContentView: View {
                                 .buttonStyle(BorderlessButtonStyle())
                             }
                         }
-                    } else {
-                        Text("Загрузка...")
-                            .font(Font.custom("villula-regular", size: 16))
-                            .foregroundColor(.gray)
                     }
                 }
                 .padding()
