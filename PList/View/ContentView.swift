@@ -1,51 +1,64 @@
+ 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @Environment(\.modelContext) private var modelContext
+    @State private var showingCreateModal = false
+    @State private var viewModel: ListViewModel?
+    
     var body: some View {
-            ScrollView {
+        ScrollView {
+            VStack {
+                HStack {
+                    Spacer()
+                    
+                    NavigationLink(destination: UserProfile()) {
+                        Text("Настройки")
+                            .padding()
+                            .font(Font.custom("villula-regular",size: 20))
+                            .foregroundColor(Color.black)
+                    }
+                }
+                .padding(.horizontal)
                 
                 VStack {
-                    
-                    HStack { //плашка профиля и моих списков
-                        Spacer()
-                        
-                        NavigationLink(destination: UserProfile()) {
-                            Text("Настройки")
-                                .padding()
-                                .font(Font.custom("villula-regular",size: 20))
-                                .foregroundColor(Color.black) // FIXME: изменять цвет при нажатии
-                        }
+                    NavigationLink(destination: OpenList()) {
+                        ListIcon()
                     }
-                    
-                    
-                    VStack {
-                        // FIXME: отображение всех списков
-                        NavigationLink(destination: OpenList()) {
-                            ListIcon()
-                        }
-                        .buttonStyle(BorderlessButtonStyle())
-                    }
-                    
-                    ZStack {
-                        // при нажатии создает пустой список, при переходе в который его можно будет отредактировать
-                        Button(action: {}) {
-                            Text("Новый список")
-                                .padding()
-                                .font(Font.custom("villula-regular",size: 20))
-                                .foregroundColor(Color.white)
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 25)
-                            .fill(Color.button)
-                    )
-                    .padding()
-                    
-                    
+                    .buttonStyle(BorderlessButtonStyle())
                 }
+                
+                ZStack {
+                    Button(action: {
+                        showingCreateModal = true
+                    }) {
+                        Text("Новый список")
+                            .padding()
+                            .font(Font.custom("villula-regular",size: 20))
+                            .foregroundColor(Color.white)
+                    }
+                }
+                .frame(maxWidth: .infinity)
+                .background(
+                    RoundedRectangle(cornerRadius: 25)
+                        .fill(Color.button)
+                )
+                .padding()
             }
-            .background(Color.main)
+        }
+        .background(Color.main)
+        .sheet(isPresented: $showingCreateModal) {
+            CreateListModal(onCreateList: { title, isShared in
+                viewModel?.createList(title: title, isShared: isShared)
+            })
+        }
+        .onAppear {
+            // Инициализируем ViewModel при появлении
+            if viewModel == nil {
+                viewModel = ListViewModel(modelContext: modelContext)
+            }
+        }
     }
 }
 
@@ -53,4 +66,5 @@ struct ContentView: View {
     NavigationView {
         ContentView()
     }
+    .modelContainer(for: [List.self, Product.self, User.self])
 }

@@ -23,12 +23,4 @@ class List: Identifiable {
         
     }
     
-    // гинератор кода
-    func generateShareCode() -> String {
-            let characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-            let code = String((0..<6).map { _ in characters.randomElement()! })
-            self.shareCode = code
-            self.isShared = true
-            return code
-        }
 }
