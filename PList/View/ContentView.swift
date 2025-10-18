@@ -1,4 +1,3 @@
- 
 import SwiftUI
 import SwiftData
 
@@ -23,11 +22,27 @@ struct ContentView: View {
                 .padding(.horizontal)
                 
                 VStack {
-                    NavigationLink(destination: OpenList()) {
-                        ListIcon()
+                    if let viewModel = viewModel {
+                        if viewModel.lists.isEmpty {
+                            Text("Создайте свой первый список")
+                                .font(Font.custom("villula-regular", size: 25))
+                                .foregroundColor(.gray)
+                                .padding()
+                        } else {
+                            ForEach(viewModel.lists) { list in
+                                NavigationLink(destination: OpenList(list: list)) {
+                                    ListIcon(list: list)
+                                }
+                                .buttonStyle(BorderlessButtonStyle())
+                            }
+                        }
+                    } else {
+                        Text("Загрузка...")
+                            .font(Font.custom("villula-regular", size: 16))
+                            .foregroundColor(.gray)
                     }
-                    .buttonStyle(BorderlessButtonStyle())
                 }
+                .padding()
                 
                 ZStack {
                     Button(action: {
@@ -54,7 +69,6 @@ struct ContentView: View {
             })
         }
         .onAppear {
-            // Инициализируем ViewModel при появлении
             if viewModel == nil {
                 viewModel = ListViewModel(modelContext: modelContext)
             }

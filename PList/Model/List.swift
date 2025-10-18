@@ -6,6 +6,7 @@ class List: Identifiable {
     var id: UUID
     var title: String
     var productCount: Int
+    var createdAt: Date
     var shareCode: String? // код общего доступа
     var isShared: Bool // общий список
     @Relationship(deleteRule: .cascade) var users: [User]
@@ -20,6 +21,7 @@ class List: Identifiable {
         self.isShared = isShared
         self.users = users
         self.products = products
+        self.createdAt = Date()
         
     }
     

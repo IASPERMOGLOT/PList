@@ -1,11 +1,29 @@
 import Foundation
 import SwiftData
+import Combine
 
-class ListViewModel {
-    let modelContext: ModelContext
+@MainActor
+class ListViewModel: ObservableObject {
+    @Published var lists: [List] = []
+    
+    private let modelContext: ModelContext
     
     init(modelContext: ModelContext) {
         self.modelContext = modelContext
+        fetchLists()
+    }
+    
+    func fetchLists() {
+        let descriptor = FetchDescriptor<List>(
+            sortBy: [SortDescriptor<List>(\.createdAt, order: .reverse)]
+        )
+        
+        do {
+            lists = try modelContext.fetch(descriptor)
+        } catch {
+            print("Ошибка загрузки списков: \(error)")
+            lists = []
+        }
     }
     
     func createList(title: String, isShared: Bool) {
@@ -20,6 +38,7 @@ class ListViewModel {
         
         do {
             try modelContext.save()
+            fetchLists() // Обновляем lists, что автоматически обновит интерфейс благодаря @Published
         } catch {
             print("Ошибка при создании списка: \(error)")
         }

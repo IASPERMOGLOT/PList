@@ -1,20 +1,15 @@
-//
-//  OpenList.swift
-//  PList
-//
-//  Created by Александр on 11.10.2025.
-//
-
 import SwiftUI
 
 struct OpenList: View {
+    var list: List
+    
     var body: some View {
-        ZStack (alignment: .bottom){
+        ZStack (alignment: .bottom) {
             ScrollView {
                 VStack {
-                    HStack { //плашка профиля и моих списков
+                    HStack {
                         Spacer()
-                        Button(action: {}) {
+                        NavigationLink(destination: ListSetting(list: list)) {
                             Text("править")
                                 .padding()
                                 .font(Font.custom("villula-regular",size: 20))
@@ -22,25 +17,32 @@ struct OpenList: View {
                         }
                     }
                     
-                    
-                    //FIXME: заменить на кастомный
-                    ListIcon(iconWidth: 380, iconHeight: 170)
+                    ListIcon(list: list, iconWidth: 380, iconHeight: 170)
                     
                     Divider()
                         .overlay(Color.main)
                         .frame(height: 15)
                     
-                    //FIXME: сделать кастомные продукты
-                    VStack (spacing: -3){
-                        ProductRow()
-                        ProductRow()
+                    // Отображаем продукты списка
+                    VStack (spacing: -3) {
+                        ForEach(list.products) { product in
+                            ProductRow(product: product)
+                        }
+                        
+                        if list.products.isEmpty {
+                            Text("Список пуст")
+                                .font(Font.custom("villula-regular", size: 16))
+                                .foregroundColor(.gray)
+                                .padding()
+                        }
                     }
                     
                     Spacer()
                         .frame(height: 100)
                 }
             }
-            // шторка поиска
+            
+            // Шторка поиска
             VStack {
                 Capsule()
                     .fill(Color.brightGray)
@@ -48,7 +50,6 @@ struct OpenList: View {
                     .padding(.top, 10)
                     .padding(.bottom, -20)
                     
-                // шаблонный поиск продуктов
                 HStack {
                     ZStack {
                         RoundedRectangle(cornerRadius: 20)
@@ -81,14 +82,18 @@ struct OpenList: View {
                     .shadow(radius: 5)
                     .offset(y: 50)
                     .frame(height: 200)
-
             )
             .ignoresSafeArea()
         }
         .background(Color.main.ignoresSafeArea())
+        .navigationTitle(list.title)
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
 #Preview {
-    OpenList()
+    let sampleList = List(title: "Мой список", productCount: 3)
+    return NavigationView {
+        OpenList(list: sampleList)
+    }
 }

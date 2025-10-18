@@ -1,13 +1,8 @@
-//
-//  ProductRow.swift
-//  PList
-//
-//  Created by Александр on 11.10.2025.
-//
-
 import SwiftUI
 
 struct ProductRow: View {
+    var product: Product // ДОБАВИТЬ параметр продукта
+    
     var body: some View {
         ZStack {
             RoundedRectangle(cornerRadius: 15)
@@ -24,7 +19,7 @@ struct ProductRow: View {
                     .foregroundColor(Color.orange)
                     .padding(20)
 
-                Text("Морковь")
+                Text(product.title) // ИСПОЛЬЗУЕМ название продукта
                     .font(Font.custom("", size: 25))
 
                 
@@ -42,5 +37,11 @@ struct ProductRow: View {
 }
 
 #Preview {
-    ProductRow()
+    let sampleProduct = Product(
+        title: "Морковь",
+        content: "Свежая морковь",
+        image: "carrot",
+        expirationDate: 7
+    )
+    return ProductRow(product: sampleProduct)
 }
