@@ -25,22 +25,58 @@ class List: Identifiable {
         
     }
     
-    func addProduct(title: String, content: String, image: String, expirationDate: Int) {
-        let newProduct = Product(
-            title: title,
-            content: content,
-            image: image,
-            expirationDate: expirationDate
-        )
-        products.append(newProduct)
-        productCount = products.count
-    }
-    
-    func removeProduct(_ product: Product) {
-        if let index = products.firstIndex(where: { $0.id == product.id }) {
-            products.remove(at: index)
+    static func createList(title: String, isShared: Bool, context: ModelContext) -> List {
+            let shareCode = isShared ? generateShareCode() : nil
+            let newList = List(
+                title: title,
+                shareCode: shareCode,
+                isShared: isShared
+            )
+            
+            context.insert(newList)
+            return newList
+        }
+        
+        // Добавление продукта в список
+        func addProduct(title: String, content: String, image: String, expirationDate: Int) {
+            let newProduct = Product(
+                title: title,
+                content: content,
+                image: image,
+                expirationDate: expirationDate
+            )
+            products.append(newProduct)
             productCount = products.count
         }
-    }
+        
+        // Удаление продукта из списка
+        func removeProduct(_ product: Product) {
+            if let index = products.firstIndex(where: { $0.id == product.id }) {
+                products.remove(at: index)
+                productCount = products.count
+            }
+        }
+        
+        // Генерация кода общего доступа
+        private static func generateShareCode() -> String {
+            let letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+            return String((0..<6).map { _ in letters.randomElement()! })
+        }
+        
+        // Получение всех списков
+        static func fetchAllLists(context: ModelContext) -> [List] {
+            let descriptor = FetchDescriptor<List>(
+                sortBy: [SortDescriptor<List>(\.createdAt, order: .reverse)]
+            )
+            do {
+                return try context.fetch(descriptor)
+            } catch {
+                print("Ошибка загрузки списков: \(error)")
+                return []
+            }
+        }
     
+    func delete(context: ModelContext) {
+            context.delete(self)
+        }
 }

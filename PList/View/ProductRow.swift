@@ -1,38 +1,50 @@
 import SwiftUI
 
 struct ProductRow: View {
-    var product: Product // ДОБАВИТЬ параметр продукта
+    var product: Product
     
     var body: some View {
-        ZStack {
-            RoundedRectangle(cornerRadius: 15)
-                .frame(width:380, height: 100)
-                .foregroundColor(Color.white)
-                .shadow(radius: 5)
+        HStack {
+            // Иконка продукта
+            Image(systemName: product.image)
+                .resizable()
+                .scaledToFit()
+                .frame(width: 45)
+                .foregroundColor(.button)
             
-            HStack {
-                //FIXME: сделать кастомное изображение
-                Image(systemName: "carrot.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 70)
-                    .foregroundColor(Color.orange)
-                    .padding(20)
-
-                Text(product.title) // ИСПОЛЬЗУЕМ название продукта
-                    .font(Font.custom("", size: 25))
-
+            VStack(alignment: .leading, spacing: 4) {
+                Text(product.title)
+                    .font(Font.custom("villula-regular", size: 20))
+                    .foregroundColor(.black)
                 
-                Spacer()
+                if !product.content.isEmpty {
+                    Text(product.content)
+                        .font(Font.custom("", size: 15))
+                        .foregroundColor(.gray)
+                }
+            }
+            
+            Spacer()
+            
+            // Индикатор срока годности
+            VStack(alignment: .trailing) {
+                if (!product.isExpired) {
+                    Text("\(product.daysUntilExpiration) \(product.getDayAddition(product.daysUntilExpiration))")
+                        .font(Font.custom("", size: 18))
+                        .foregroundColor(.green)
+                } else {
+                    Text("Просрочено")
+                        .font(.caption2)
+                        .foregroundColor(.red)
+                }
                 
-                Image(systemName: "ellipsis.circle.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 35)
-                    .foregroundColor(Color.brightGray)
-                    .padding(20)
             }
         }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(10)
+        .shadow(radius: 3)
+        .padding(.horizontal)
     }
 }
 
@@ -41,7 +53,8 @@ struct ProductRow: View {
         title: "Морковь",
         content: "Свежая морковь",
         image: "carrot",
-        expirationDate: 7
+        expirationDate: 20
     )
     return ProductRow(product: sampleProduct)
 }
+

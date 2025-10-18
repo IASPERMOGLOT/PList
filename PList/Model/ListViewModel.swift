@@ -38,7 +38,8 @@ class ListViewModel: ObservableObject {
         
         do {
             try modelContext.save()
-            fetchLists() // Обновляем lists, что автоматически обновит интерфейс благодаря @Published
+            // После сохранения сразу обновляем список
+            fetchLists()
         } catch {
             print("Ошибка при создании списка: \(error)")
         }

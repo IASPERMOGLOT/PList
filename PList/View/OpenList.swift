@@ -1,22 +1,15 @@
 import SwiftUI
+import SwiftData
 
 struct OpenList: View {
     var list: List
+    @Environment(\.modelContext) private var modelContext
+    @State private var showingAddProductModal = false
     
     var body: some View {
         ZStack (alignment: .bottom) {
             ScrollView {
                 VStack {
-//                    HStack {
-//                        Spacer()
-//                        NavigationLink(destination: ListSetting(list: list)) {
-//                            Text("править")
-//                                .padding()
-//                                .font(Font.custom("villula-regular",size: 20))
-//                                .foregroundColor(Color.black)
-//                        }
-//                    }
-                    
                     ListIcon(list: list, iconWidth: 380, iconHeight: 170)
                     
                     Divider()
@@ -24,9 +17,23 @@ struct OpenList: View {
                         .frame(height: 15)
                     
                     // Отображаем продукты списка
-                    VStack (spacing: -3) {
+                    VStack (spacing: 10) {
                         ForEach(list.products) { product in
                             ProductRow(product: product)
+                                .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                    Button(role: .destructive) {
+                                        deleteProduct(product)
+                                    } label: {
+                                        Label("Удалить", systemImage: "trash")
+                                    }
+                                }
+                                .contextMenu {
+                                    Button(role: .destructive) {
+                                        deleteProduct(product)
+                                    } label: {
+                                        Label("Удалить продукт", systemImage: "trash")
+                                    }
+                                }
                         }
                         
                         if list.products.isEmpty {
@@ -42,58 +49,80 @@ struct OpenList: View {
                 }
             }
             
-            // Шторка поиска
-            VStack {
-                Capsule()
-                    .fill(Color.brightGray)
-                    .frame(width: 40, height: 5)
-                    .padding(.top, 10)
-                    .padding(.bottom, -20)
-                    
-                HStack {
-                    ZStack {
-                        RoundedRectangle(cornerRadius: 20)
-                            .fill(Color.brightGray)
-                            .frame(width: 300, height: 50)
-                        HStack {
-                            Image(systemName: "magnifyingglass")
-                                .resizable()
-                                .scaledToFit()
-                                .frame(width: 14)
-                            
-                            Text("Мне нужно ...")
-                        }
-                        .foregroundColor(Color.gray)
-                    }
-                    
-                    Spacer()
-                    
+            HStack {
+                Spacer()
+                
+                Button(action: {
+                    showingAddProductModal = true
+                }) {
                     Image(systemName: "plus.app.fill")
                         .resizable()
                         .scaledToFit()
                         .frame(width: 50, height: 50)
                         .foregroundColor(Color.green)
                 }
-                .padding(20)
             }
-            .background(
-                RoundedRectangle(cornerRadius: 25)
-                    .fill(Color.white)
-                    .shadow(radius: 5)
-                    .offset(y: 50)
-                    .frame(height: 200)
-            )
-            .ignoresSafeArea()
+            .padding(20)
         }
         .background(Color.main.ignoresSafeArea())
         .navigationTitle(list.title)
         .navigationBarTitleDisplayMode(.inline)
+        .sheet(isPresented: $showingAddProductModal) {
+            CreateProductModal { title, description, image, days in
+                addProduct(title: title, description: description, image: image, expirationDays: days)
+            }
+        }
+        .toolbar {
+            ToolbarItem(placement: .navigationBarTrailing) {
+                Menu {
+                    Button(role: .destructive) {
+                        deleteEntireList()
+                    } label: {
+                        Label("Удалить весь список", systemImage: "trash")
+                    }
+                } label: {
+                    Image(systemName: "ellipsis.circle")
+                }
+            }
+        }
+    }
+    
+    private func addProduct(title: String, description: String, image: String, expirationDays: Int) {
+        list.addProduct(
+            title: title,
+            content: description,
+            image: image,
+            expirationDate: expirationDays
+        )
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Ошибка при сохранении продукта: \(error)")
+        }
+    }
+    
+    private func deleteProduct(_ product: Product) {
+        list.removeProduct(product)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Ошибка при удалении продукта: \(error)")
+        }
+    }
+    
+    private func deleteEntireList() {
+        list.delete(context: modelContext)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Ошибка при удалении списка: \(error)")
+        }
     }
 }
 
 #Preview {
-    let sampleList = List(title: "Мой список", productCount: 3)
-    return NavigationView {
-        OpenList(list: sampleList)
-    }
+    OpenList(list: List(title: "Тестовый список", productCount: 2, isShared: false))
 }

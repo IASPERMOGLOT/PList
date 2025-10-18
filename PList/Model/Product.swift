@@ -19,8 +19,41 @@ class Product: Identifiable {
         self.addedDate = addedDate
     }
     
-    // вычисление срока годности
+    // срок годности продукта
     var expirationDateValue: Date {
-        Calendar.current.date(byAdding: .day, value: expirationDate, to: addedDate) ?? Date()
-    }
+            Calendar.current.date(byAdding: .day, value: expirationDate, to: addedDate) ?? Date()
+        }
+        
+        // вычисляемое свойство: дней до истечения срока
+        var daysUntilExpiration: Int {
+            let components = Calendar.current.dateComponents([.day], from: Date(), to: expirationDateValue)
+            return components.day ?? 0
+        }
+        
+        // вычисляемое свойство: просрочен ли продукт
+        var isExpired: Bool {
+            expirationDateValue < Date()
+        }
+        
+        // Функция для правильного склонения слова "день"
+        func getDayAddition(_ num: Int) -> String {
+            let preLastDigit = num % 100 / 10
+            
+            if preLastDigit == 1 {
+                return "дней"
+            }
+            
+            switch num % 10 {
+            case 1:
+                return "день"
+            case 2, 3, 4:
+                return "дня"
+            default:
+                return "дней"
+            }
+        }
+    
+    func delete(context: ModelContext) {
+            context.delete(self)
+        }
 }

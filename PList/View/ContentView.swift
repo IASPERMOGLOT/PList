@@ -4,7 +4,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showingCreateModal = false
-    @State private var viewModel: ListViewModel?
+    @Query(sort: \List.createdAt, order: .reverse) private var lists: [List]
     
     var body: some View {
         ScrollView {
@@ -22,19 +22,17 @@ struct ContentView: View {
                 .padding(.horizontal)
                 
                 VStack {
-                    if let viewModel = viewModel {
-                        if viewModel.lists.isEmpty {
-                            Text("Создайте свой первый список")
-                                .font(Font.custom("villula-regular", size: 25))
-                                .foregroundColor(.gray)
-                                .padding()
-                        } else {
-                            ForEach(viewModel.lists) { list in
-                                NavigationLink(destination: OpenList(list: list)) {
-                                    ListIcon(list: list)
-                                }
-                                .buttonStyle(BorderlessButtonStyle())
+                    if lists.isEmpty {
+                        Text("Создайте свой первый список")
+                            .font(Font.custom("villula-regular", size: 25))
+                            .foregroundColor(.gray)
+                            .padding()
+                    } else {
+                        ForEach(lists) { list in
+                            NavigationLink(destination: OpenList(list: list)) {
+                                ListIcon(list: list)
                             }
+                            .buttonStyle(BorderlessButtonStyle())
                         }
                     }
                 }
@@ -61,13 +59,18 @@ struct ContentView: View {
         .background(Color.main)
         .sheet(isPresented: $showingCreateModal) {
             CreateListModal(onCreateList: { title, isShared in
-                viewModel?.createList(title: title, isShared: isShared)
+                createList(title: title, isShared: isShared)
             })
         }
-        .onAppear {
-            if viewModel == nil {
-                viewModel = ListViewModel(modelContext: modelContext)
-            }
+    }
+    
+    private func createList(title: String, isShared: Bool) {
+        _ = List.createList(title: title, isShared: isShared, context: modelContext)
+        
+        do {
+            try modelContext.save()
+        } catch {
+            print("Ошибка при создании списка: \(error)")
         }
     }
 }
