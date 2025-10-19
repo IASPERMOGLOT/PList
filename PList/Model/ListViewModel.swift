@@ -2,6 +2,11 @@ import Foundation
 import SwiftData
 import Combine
 
+
+//Совместные списки
+//Уведомление за день о порче продуктов
+//При нажатии на продукт он (покупается) опускается вниз экрана и меняет цвет
+//Кастомные иконки продуктов + их разнообразие
 @MainActor
 class ListViewModel: ObservableObject {
     @Published var lists: [List] = []
@@ -38,7 +43,7 @@ class ListViewModel: ObservableObject {
         
         do {
             try modelContext.save()
-            // После сохранения сразу обновляем список
+            // После сохранения список сразу обновляется
             fetchLists()
         } catch {
             print("Ошибка при создании списка: \(error)")

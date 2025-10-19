@@ -1,10 +1,3 @@
-//
-//  ProfileSettingButton.swift
-//  PList
-//
-//  Created by Александр on 12.10.2025.
-//
-
 import SwiftUI
 
 struct ProfileSettingButton: View {

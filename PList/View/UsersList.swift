@@ -1,10 +1,3 @@
-//
-//  UsersList.swift
-//  PList
-//
-//  Created by Александр on 13.10.2025.
-//
-
 import SwiftUI
 
 struct UsersList: View {

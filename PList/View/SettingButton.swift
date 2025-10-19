@@ -1,10 +1,3 @@
-//
-//  SettingButton.swift
-//  PList
-//
-//  Created by Александр on 11.10.2025.
-//
-
 import SwiftUI
 
 struct SettingButton: View {

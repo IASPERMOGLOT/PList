@@ -1,4 +1,3 @@
-
 import SwiftUI
 
 struct UserProfile: View {
@@ -19,10 +18,6 @@ struct UserProfile: View {
                 
                 ProfileSettingButton(buttonName: "Получить список")
                 
-                ProfileSettingButton(buttonName: "Создать групповой список")
-                
-                
-
                 
                 
             }

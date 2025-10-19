@@ -26,7 +26,7 @@ struct CreateProductModal: View {
             }
         }
     
-    let productImages = ["carrot.fill", "fish.fill","birthday.cake.fill"]
+    let productImages = ["carrot.fill", "fish.fill","birthday.cake.fill", ""]
     var onAddProduct: (String, String, String, Int) -> Void
     
     var body: some View {
