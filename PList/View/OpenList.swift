@@ -2,7 +2,7 @@ import SwiftUI
 import SwiftData
 
 struct OpenList: View {
-    var list: List
+    var list: ShoppingList
     @Environment(\.modelContext) private var modelContext
     @State private var showingAddProductModal = false
     
@@ -254,9 +254,9 @@ struct OpenList: View {
 
 #Preview {
     let config = ModelConfiguration(isStoredInMemoryOnly: true)
-    let container = try! ModelContainer(for: List.self, Product.self, User.self, configurations: config)
+    let container = try! ModelContainer(for: ShoppingList.self, Product.self, User.self, configurations: config)
     
-    let sampleList = List(title: "Тестовый список", productCount: 4, isShared: false)
+    let sampleList = ShoppingList(title: "Тестовый список", productCount: 4, isShared: false)
     
     // Добавляем тестовые продукты
     let product1 = Product(

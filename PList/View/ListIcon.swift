@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ListIcon: View {
-    var list: List
+    var list: ShoppingList
     var iconWidth: CGFloat = 380
     var iconHeight: CGFloat = 250
     
@@ -55,6 +55,6 @@ struct ListIcon: View {
 }
 
 #Preview {
-    let sampleList = List(title: "Мой список", productCount: 5, shareCode: "ABC123", isShared: true)
+    let sampleList = ShoppingList(title: "Мой список", productCount: 5, shareCode: "ABC123", isShared: true)
     return ListIcon(list: sampleList)
 }

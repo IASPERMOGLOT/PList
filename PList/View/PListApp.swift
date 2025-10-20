@@ -9,6 +9,6 @@ struct PListApp: App {
                 ContentView()
             }
         }
-        .modelContainer(for: [List.self, Product.self, User.self])
+        .modelContainer(for: [ShoppingList.self, Product.self, User.self])
     }
 }

@@ -4,7 +4,7 @@ import SwiftData
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @State private var showingCreateModal = false
-    @Query(sort: \List.createdAt, order: .reverse) private var lists: [List]
+    @Query(sort: \ShoppingList.createdAt, order: .reverse) private var lists: [ShoppingList]
     
     var body: some View {
         ScrollView {
@@ -65,7 +65,7 @@ struct ContentView: View {
     }
     
     private func createList(title: String, isShared: Bool) {
-        _ = List.createList(title: title, isShared: isShared, context: modelContext)
+        _ = ShoppingList.createList(title: title, isShared: isShared, context: modelContext)
         
         do {
             try modelContext.save()
@@ -79,5 +79,5 @@ struct ContentView: View {
     NavigationView {
         ContentView()
     }
-    .modelContainer(for: [List.self, Product.self, User.self])
+    .modelContainer(for: [ShoppingList.self, Product.self, User.self])
 }

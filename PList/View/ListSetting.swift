@@ -1,7 +1,7 @@
 import SwiftUI
 
 struct ListSetting: View {
-    var list: List // ДОБАВИТЬ параметр списка
+    var list: ShoppingList // ДОБАВИТЬ параметр списка
     
     var body: some View {
         NavigationStack {
@@ -50,6 +50,6 @@ struct ListSetting: View {
 }
 
 #Preview {
-    let sampleList = List(title: "Мой список", productCount: 5)
+    let sampleList = ShoppingList(title: "Мой список", productCount: 5)
     return ListSetting(list: sampleList)
 }
