@@ -2,59 +2,69 @@ import SwiftUI
 
 struct ListIcon: View {
     var list: ShoppingList
-    var iconWidth: CGFloat = 380
-    var iconHeight: CGFloat = 250
+    var iconWidth: CGFloat = 160
+    var iconHeight: CGFloat = 180
     
     var body: some View {
         ZStack {
-            Image("vegetables background")
-                .resizable()
-                .clipShape(RoundedRectangle(cornerRadius: 20))
-                .frame(width: iconWidth, height: iconHeight)
-                .shadow(radius: 5)
+            // Карточка списка с градиентом
+            LinearGradient(
+                gradient: Gradient(colors: [
+                    Color.button.opacity(0.9),
+                    Color.button.opacity(0.7)
+                ]),
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+            .cornerRadius(20)
+            .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             
-            ZStack(alignment: .topLeading) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text(list.title)
-                        .font(Font.custom("villula-regular", size: 20))
-                        .foregroundColor(Color.white)
-                        .padding(3)
-                    
-                    HStack {
-                        Text("Продуктов: \(list.products.count)")
+            VStack(alignment: .leading, spacing: 12) {
+                // Заголовок списка
+                Text(list.title)
+                    .font(Font.custom("villula-regular", size: 18))
+                    .foregroundColor(.white)
+                    .lineLimit(2)
+                    .multilineTextAlignment(.leading)
+                
+                Spacer()
+                
+                HStack {
+                    // Количество продуктов
+                    HStack(spacing: 4) {
+                        Image(systemName: "cart.fill")
+                            .font(.caption)
+                        Text("\(list.products.count)")
                             .font(Font.custom("villula-regular", size: 14))
-                            .foregroundColor(Color.white)
-                            .padding(4)
-                            .background(
-                                RoundedRectangle(cornerRadius: 25)
-                                    .fill(Color.button)
-                            )
-                        
-                        // Индикатор совместного списка
-                        if list.isShared {
-                            Image(systemName: "person.2.fill")
-                                .font(.caption)
-                                .foregroundColor(.white)
-                                .padding(4)
-                                .background(Circle().fill(Color.green))
-                        }
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 8)
+                    .padding(.vertical, 4)
+                    .background(Color.white.opacity(0.2))
+                    .cornerRadius(10)
+                    
+                    Spacer()
+                    
+                    // Индикатор совместного списка
+                    if list.isShared {
+                        Image(systemName: "person.2.fill")
+                            .font(.caption)
+                            .foregroundColor(.white)
+                            .padding(6)
+                            .background(Color.green)
+                            .clipShape(Circle())
                     }
                 }
-                
-                Image("userIcon2")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(height: 40)
-                    .foregroundColor(.white)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottomLeading)
             }
-            .padding(20)
+            .padding(16)
             .frame(width: iconWidth, height: iconHeight)
         }
     }
 }
 
 #Preview {
-    let sampleList = ShoppingList(title: "Мой список", productCount: 5, shareCode: "ABC123", isShared: true)
+    let sampleList = ShoppingList(title: "Мой список покупок", productCount: 5, shareCode: "ABC123", isShared: true)
     return ListIcon(list: sampleList)
+        .padding()
+        .background(Color.gray.opacity(0.1))
 }

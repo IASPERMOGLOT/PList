@@ -12,14 +12,33 @@ struct UserProfile: View {
 
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 25) {
-                    userInfoSection
-                    sharedListsSection
+            ZStack {
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Профиль пользователя
+                        ProfileHeaderView(
+                            userName: userManager.currentUser?.name ?? "Пользователь",
+                            userID: userManager.currentUserID,
+                            onEdit: { showEditName() }
+                        )
+                        
+                        // Совместные списки
+                        SharedListsSection(
+                            onShare: { showingShareSheet = true },
+                            onJoin: { showingJoinSheet = true }
+                        )
+                        
+                        // Статистика
+                        StatisticsView()
+                    }
+                    .padding()
                 }
-                .padding()
             }
-            .background(Color.main)
+            .navigationTitle("Профиль")
+            .navigationBarTitleDisplayMode(.large)
         }
         .sheet(isPresented: $showingShareSheet) {
             ShareListSheet()
@@ -39,84 +58,6 @@ struct UserProfile: View {
         }
     }
     
-    private var userInfoSection: some View {
-        VStack(spacing: 15) {
-            Image("userIcon1")
-                .resizable()
-                .scaledToFit()
-                .frame(height: 100)
-            
-            HStack {
-                Text("Пользователь")
-                    .font(Font.custom("villula-regular", size: 20))
-                    .foregroundColor(.black)
-                
-                Button(action: { showEditName() }) {
-                    Image(systemName: "pencil.circle.fill")
-                        .foregroundColor(.button)
-                        .font(.title2)
-                }
-            }
-            
-            Text("ID: \(userManager.currentUserID.prefix(8))")
-                .font(.caption)
-                .foregroundColor(.gray)
-        }
-        .padding()
-        .background(Color.white)
-        .cornerRadius(15)
-        .shadow(radius: 3)
-    }
-    
-    private var sharedListsSection: some View {
-        VStack(alignment: .leading, spacing: 15) {
-            Text("Совместные списки")
-                .font(Font.custom("villula-regular", size: 20))
-                .foregroundColor(.black)
-            
-            VStack(spacing: 12) {
-                actionButton(
-                    title: "Поделиться списком",
-                    icon: "square.and.arrow.up",
-                    color: .button,
-                    action: { showingShareSheet = true }
-                )
-                
-                actionButton(
-                    title: "Присоединиться к списку",
-                    icon: "person.badge.plus",
-                    color: .green,
-                    action: { showingJoinSheet = true }
-                )
-            }
-            
-            // FIXME: добавить синхронизацию
-
-        }
-    }
-    
-    private func actionButton(title: String, icon: String, color: Color, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack {
-                Image(systemName: icon)
-                    .font(.title2)
-                    .foregroundColor(.white)
-                
-                Text(title)
-                    .font(Font.custom("villula-regular", size: 18))
-                    .foregroundColor(.white)
-                
-                Spacer()
-                
-                Image(systemName: "chevron.right")
-                    .foregroundColor(.white.opacity(0.7))
-            }
-            .padding()
-            .background(color)
-            .cornerRadius(12)
-        }
-    }
-    
     private func setupUser() {
         _ = userManager.getCurrentUser(context: modelContext)
     }
@@ -133,6 +74,193 @@ struct UserProfile: View {
     private func joinList(code: String) {
         guard !code.isEmpty else { return }
         print("Присоединяемся к списку: \(code)")
+    }
+}
+
+// Компонент заголовка профиля
+struct ProfileHeaderView: View {
+    let userName: String
+    let userID: String
+    let onEdit: () -> Void
+    
+    var body: some View {
+        VStack(spacing: 16) {
+            // Аватар
+            ZStack {
+                Circle()
+                    .fill(
+                        LinearGradient(
+                            colors: [.button, .button.opacity(0.7)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .frame(width: 100, height: 100)
+                
+                Image(systemName: "person.fill")
+                    .font(.system(size: 40))
+                    .foregroundColor(.white)
+            }
+            
+            // Информация
+            VStack(spacing: 8) {
+                HStack(spacing: 8) {
+                    Text(userName)
+                        .font(Font.custom("villula-regular", size: 22))
+                        .foregroundColor(.primary)
+                    
+                    Button(action: onEdit) {
+                        Image(systemName: "pencil.circle.fill")
+                            .font(.title3)
+                            .foregroundColor(.button)
+                    }
+                }
+                
+                Text("ID: \(userID.prefix(8))")
+                    .font(Font.custom("villula-regular", size: 14))
+                    .foregroundColor(.gray)
+            }
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+}
+
+// Компонент совместных списков
+struct SharedListsSection: View {
+    let onShare: () -> Void
+    let onJoin: () -> Void
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Совместные списки")
+                .font(Font.custom("villula-regular", size: 20))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 4)
+            
+            VStack(spacing: 12) {
+                ActionCard(
+                    title: "Поделиться списком",
+                    subtitle: "Предоставить доступ другим пользователям",
+                    icon: "square.and.arrow.up",
+                    color: .button,
+                    action: onShare
+                )
+                
+                ActionCard(
+                    title: "Присоединиться к списку",
+                    subtitle: "По коду доступа",
+                    icon: "person.badge.plus",
+                    color: .green,
+                    action: onJoin
+                )
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+}
+
+// Компонент статистики
+struct StatisticsView: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text("Статистика")
+                .font(Font.custom("villula-regular", size: 20))
+                .foregroundColor(.primary)
+                .padding(.horizontal, 4)
+            
+            LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 12) {
+                StatItem(value: "12", label: "Списков", icon: "list.bullet", color: .button)
+                StatItem(value: "47", label: "Продуктов", icon: "cart", color: .green)
+                StatItem(value: "38", label: "Куплено", icon: "checkmark", color: .orange)
+                StatItem(value: "5", label: "Совместных", icon: "person.2", color: .purple)
+            }
+        }
+        .padding()
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.1), radius: 5, x: 0, y: 2)
+    }
+}
+
+// Компонент карточки действия
+struct ActionCard: View {
+    let title: String
+    let subtitle: String
+    let icon: String
+    let color: Color
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 16) {
+                ZStack {
+                    Circle()
+                        .fill(color.opacity(0.1))
+                        .frame(width: 50, height: 50)
+                    
+                    Image(systemName: icon)
+                        .font(.title3)
+                        .foregroundColor(color)
+                }
+                
+                VStack(alignment: .leading, spacing: 4) {
+                    Text(title)
+                        .font(Font.custom("villula-regular", size: 17))
+                        .foregroundColor(.primary)
+                    
+                    Text(subtitle)
+                        .font(Font.custom("villula-regular", size: 14))
+                        .foregroundColor(.gray)
+                }
+                
+                Spacer()
+                
+                Image(systemName: "chevron.right")
+                    .font(.caption)
+                    .foregroundColor(.gray)
+            }
+            .padding()
+            .background(color.opacity(0.05))
+            .cornerRadius(12)
+        }
+        .buttonStyle(PlainButtonStyle())
+    }
+}
+
+// Компонент статистики
+struct StatItem: View {
+    let value: String
+    let label: String
+    let icon: String
+    let color: Color
+    
+    var body: some View {
+        VStack(spacing: 8) {
+            HStack(spacing: 6) {
+                Image(systemName: icon)
+                    .font(.caption)
+                    .foregroundColor(color)
+                
+                Text(value)
+                    .font(Font.custom("villula-regular", size: 18))
+                    .foregroundColor(.primary)
+            }
+            
+            Text(label)
+                .font(Font.custom("villula-regular", size: 12))
+                .foregroundColor(.gray)
+        }
+        .padding()
+        .frame(maxWidth: .infinity)
+        .background(color.opacity(0.1))
+        .cornerRadius(12)
     }
 }
 

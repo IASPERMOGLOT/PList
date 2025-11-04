@@ -1,4 +1,3 @@
-// CreateProductModal.swift
 import SwiftUI
 
 struct CreateProductModal: View {
@@ -8,153 +7,217 @@ struct CreateProductModal: View {
     @State private var expirationDays: Int = 7
     @State private var selectedImage: String = "cart"
     
-    // функция для правильного написания "дня"
     private func getDayAddition(_ num: Int) -> String {
-            let preLastDigit = num % 100 / 10
-            
-            if preLastDigit == 1 {
-                return "дней"
-            }
-            
-            switch num % 10 {
-            case 1:
-                return "день"
-            case 2, 3, 4:
-                return "дня"
-            default:
-                return "дней"
-            }
+        let preLastDigit = num % 100 / 10
+        
+        if preLastDigit == 1 {
+            return "дней"
         }
+        
+        switch num % 10 {
+        case 1:
+            return "день"
+        case 2, 3, 4:
+            return "дня"
+        default:
+            return "дней"
+        }
+    }
     
-    let productImages = ["carrot.fill", "fish.fill","birthday.cake.fill", ""]
+    let productImages = ["carrot.fill", "fish.fill", "birthday.cake.fill", "leaf.fill", "cart.fill", "takeoutbag.and.cup.and.straw.fill"]
     var onAddProduct: (String, String, String, Int) -> Void
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Название продукта
-                    VStack(alignment: .leading) {
-                        Text("Название продукта")
-                            .font(Font.custom("villula-regular", size: 16))
-                            .foregroundColor(.black)
-                        
-                        TextField("Введите название", text: $productTitle)
-                            .font(Font.custom("villula-regular", size: 15))
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .fill(Color.white)
-                                    .shadow(radius: 2)
-                            )
-                    }
-                    .padding(.horizontal)
-                    
-                    // Описание продукта
-                    VStack(alignment: .leading) {
-                        Text("Описание (необязательно)")
-                            .font(Font.custom("villula-regular", size: 16))
-                            .foregroundColor(.black)
-                        
-                        TextField("Описание, количество...", text: $productDescription)
-                            .font(Font.custom("villula-regular", size: 15))
-                            .padding()
-                            .background(
-                                RoundedRectangle(cornerRadius: 15)
-                                    .fill(Color.white)
-                                    .shadow(radius: 2)
-                            )
-                    }
-                    .padding(.horizontal)
-                    
-                    // Срок годности
-                    VStack(alignment: .leading) {
-                        Text("Срок годности")
-                            .font(Font.custom("villula-regular", size: 16))
-                            .foregroundColor(.black)
-                        
-                        HStack {
-                            Text("\(expirationDays) \(getDayAddition(expirationDays))")
-                                .font(Font.custom("villula-regular", size: 15))
-                                .foregroundColor(.black)
+            ZStack {
+                Color(.systemGroupedBackground)
+                    .ignoresSafeArea()
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        // Заголовок с иконкой
+                        VStack(spacing: 8) {
+                            Image(systemName: "plus.circle.fill")
+                                .font(.system(size: 50))
+                                .foregroundColor(.button)
                             
-                            Spacer()
-                            
-                            Stepper("", value: $expirationDays, in: 1...365)
+                            Text("Новый продукт")
+                                .font(Font.custom("villula-regular", size: 24))
+                                .foregroundColor(.primary)
                         }
-                        .padding()
-                        .background(
-                            RoundedRectangle(cornerRadius: 15)
-                                .fill(Color.white)
-                                .shadow(radius: 2)
-                        )
-                    }
-                    .padding(.horizontal)
-                    
-                    // Выбор иконки
-                    VStack(alignment: .leading) {
-                        Text("Иконка продукта")
-                            .font(Font.custom("villula-regular", size: 16))
-                            .foregroundColor(.black)
+                        .padding(.top, 10)
                         
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack(spacing: 15) {
-                                // анимация выбора иконки
-                                ForEach(productImages, id: \.self) { imageName in
-                                    Button(action: {
-                                        selectedImage = imageName
-                                    }) {
-                                        Image(systemName: imageName)
-                                            .resizable()
-                                            .scaledToFit()
-                                            .frame(width: 30, height: 30)
-                                            .foregroundColor(selectedImage == imageName ? .white : .gray)
-                                            .padding(15)
-                                            .background(
-                                                Circle()
-                                                    .fill(selectedImage == imageName ? Color.button : Color.brightGray)
-                                            )
+                        // Название продукта
+                        InputField(
+                            title: "Название продукта",
+                            placeholder: "Введите название",
+                            text: $productTitle,
+                            icon: "tag.fill"
+                        )
+                        
+                        // Описание продукта
+                        InputField(
+                            title: "Описание (необязательно)",
+                            placeholder: "Описание, количество...",
+                            text: $productDescription,
+                            icon: "text.alignleft"
+                        )
+                        
+                        // Срок годности
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "calendar")
+                                    .foregroundColor(.button)
+                                
+                                Text("Срок годности")
+                                    .font(Font.custom("villula-regular", size: 16))
+                                    .foregroundColor(.primary)
+                            }
+                            
+                            HStack {
+                                Text("\(expirationDays) \(getDayAddition(expirationDays))")
+                                    .font(Font.custom("villula-regular", size: 16))
+                                    .foregroundColor(.primary)
+                                
+                                Spacer()
+                                
+                                Stepper("", value: $expirationDays, in: 1...365)
+                                    .labelsHidden()
+                            }
+                            .padding()
+                            .background(Color.white)
+                            .cornerRadius(12)
+                            .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+                        }
+                        .padding(.horizontal)
+                        
+                        // Выбор иконки
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Image(systemName: "square.grid.2x2")
+                                    .foregroundColor(.button)
+                                
+                                Text("Иконка продукта")
+                                    .font(Font.custom("villula-regular", size: 16))
+                                    .foregroundColor(.primary)
+                            }
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(productImages, id: \.self) { imageName in
+                                        IconButton(
+                                            imageName: imageName,
+                                            isSelected: selectedImage == imageName,
+                                            action: { selectedImage = imageName }
+                                        )
                                     }
                                 }
-                                // добавить кнопку добавления иконки продукта
+                                .padding(.vertical, 4)
                             }
-                            .padding(.vertical, 5)
                         }
-                    }
-                    .padding(.horizontal)
-                    
-                    Spacer()
-                    
-                    // Кнопка добавления
-                    Button("Добавить продукт") {
-                        if !productTitle.isEmpty {
-                            onAddProduct(productTitle, productDescription, selectedImage, expirationDays)
-                            dismiss()
+                        .padding(.horizontal)
+                        
+                        Spacer()
+                            .frame(height: 20)
+                        
+                        // Кнопка добавления
+                        Button("Добавить продукт") {
+                            if !productTitle.isEmpty {
+                                onAddProduct(productTitle, productDescription, selectedImage, expirationDays)
+                                dismiss()
+                            }
                         }
+                        .disabled(productTitle.isEmpty)
+                        .font(Font.custom("villula-regular", size: 18))
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(
+                            LinearGradient(
+                                gradient: Gradient(colors: [
+                                    productTitle.isEmpty ? Color.gray : Color.button,
+                                    productTitle.isEmpty ? Color.gray.opacity(0.8) : Color.button.opacity(0.9)
+                                ]),
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            )
+                            .cornerRadius(15)
+                            .shadow(color: productTitle.isEmpty ? .clear : Color.button.opacity(0.3), radius: 8, x: 0, y: 4)
+                        )
+                        .padding(.horizontal)
+                        .padding(.bottom, 8)
                     }
-                    .disabled(productTitle.isEmpty)
-                    .padding()
-                    .frame(maxWidth: .infinity)
-                    .background(
-                        RoundedRectangle(cornerRadius: 25)
-                            .fill(productTitle.isEmpty ? Color.gray : Color.button)
-                    )
-                    .foregroundColor(.white)
-                    .padding(.horizontal)
                 }
-                .padding(.top, 20)
             }
-            .background(Color.main)
-            .navigationTitle("Новый продукт")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Отмена") {
                         dismiss()
                     }
+                    .font(Font.custom("villula-regular", size: 16))
+                    .foregroundColor(.button)
                 }
             }
         }
+    }
+}
+
+// Компонент поля ввода
+struct InputField: View {
+    let title: String
+    let placeholder: String
+    @Binding var text: String
+    let icon: String
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            HStack {
+                Image(systemName: icon)
+                    .foregroundColor(.button)
+                
+                Text(title)
+                    .font(Font.custom("villula-regular", size: 16))
+                    .foregroundColor(.primary)
+            }
+            
+            TextField(placeholder, text: $text)
+                .font(Font.custom("villula-regular", size: 16))
+                .padding()
+                .background(Color.white)
+                .cornerRadius(12)
+                .shadow(color: .black.opacity(0.05), radius: 2, x: 0, y: 1)
+        }
+        .padding(.horizontal)
+    }
+}
+
+// Компонент кнопки иконки
+struct IconButton: View {
+    let imageName: String
+    let isSelected: Bool
+    let action: () -> Void
+    
+    var body: some View {
+        Button(action: action) {
+            VStack(spacing: 8) {
+                Image(systemName: imageName)
+                    .font(.system(size: 20, weight: .medium))
+                    .foregroundColor(isSelected ? .white : .button)
+                    .frame(width: 50, height: 50)
+                    .background(
+                        Circle()
+                            .fill(isSelected ? Color.button : Color.button.opacity(0.1))
+                    )
+                
+                if isSelected {
+                    Circle()
+                        .fill(Color.button)
+                        .frame(width: 6, height: 6)
+                }
+            }
+        }
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

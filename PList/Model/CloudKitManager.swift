@@ -86,7 +86,7 @@ class CloudKitManager: ObservableObject {
             DispatchQueue.main.async {
                 self.isSyncing = false
                 
-                if case .success(let (matchResults, _)) = result {
+                if case .success( (_, _)) = result {
                     print("Синхронизация завершена")
                 } else if case .failure(let error) = result {
                     print("Ошибка синхронизации: \(error)")
