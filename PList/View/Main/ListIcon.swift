@@ -7,7 +7,6 @@ struct ListIcon: View {
     
     var body: some View {
         ZStack {
-            // Карточка списка с градиентом
             LinearGradient(
                 gradient: Gradient(colors: [
                     Color.button.opacity(0.9),
@@ -20,7 +19,6 @@ struct ListIcon: View {
             .shadow(color: .black.opacity(0.2), radius: 10, x: 0, y: 5)
             
             VStack(alignment: .leading, spacing: 12) {
-                // Заголовок списка
                 Text(list.title)
                     .font(Font.custom("villula-regular", size: 18))
                     .foregroundColor(.white)
@@ -30,7 +28,6 @@ struct ListIcon: View {
                 Spacer()
                 
                 HStack {
-                    // Количество продуктов
                     HStack(spacing: 4) {
                         Image(systemName: "cart.fill")
                             .font(.caption)
@@ -45,7 +42,6 @@ struct ListIcon: View {
                     
                     Spacer()
                     
-                    // Индикатор совместного списка
                     if list.isShared {
                         Image(systemName: "person.2.fill")
                             .font(.caption)

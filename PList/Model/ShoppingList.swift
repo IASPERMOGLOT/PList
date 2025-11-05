@@ -11,7 +11,6 @@ class ShoppingList: Identifiable {
     var isShared: Bool
     var lastModified: Date
     
-    // Связи
     @Relationship(deleteRule: .cascade) var users: [User]
     @Relationship(deleteRule: .cascade) var products: [Product]
     

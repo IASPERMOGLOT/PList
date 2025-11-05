@@ -13,7 +13,6 @@ struct PListApp: App {
         let modelConfiguration = ModelConfiguration(
             schema: schema,
             isStoredInMemoryOnly: false
-            // SwiftData автоматически использует iCloud если он включен в capabilities
         )
 
         do {
