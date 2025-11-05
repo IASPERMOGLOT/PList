@@ -3,6 +3,7 @@ import SwiftData
 
 struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
+    @StateObject private var firebaseManager = FirebaseManager.shared
     @State private var showingCreateModal = false
     @Query(sort: \ShoppingList.createdAt, order: .reverse) private var lists: [ShoppingList]
     
@@ -15,13 +16,18 @@ struct ContentView: View {
             )
             .ignoresSafeArea()
             
-            ScrollView {
-                VStack(spacing: 20) {
-                    MainHeaderView()
-                    
-                    ListsGridView(lists: lists)
-                    
-                    CreateListButton(showingCreateModal: $showingCreateModal)
+            VStack {
+                // Индикатор статуса Firebase
+                FirebaseStatusView(firebaseManager: firebaseManager)
+                
+                ScrollView {
+                    VStack(spacing: 20) {
+                        MainHeaderView()
+                        
+                        ListsGridView(lists: lists)
+                        
+                        CreateListButton(showingCreateModal: $showingCreateModal)
+                    }
                 }
             }
         }
@@ -40,6 +46,45 @@ struct ContentView: View {
         } catch {
             print("Ошибка при создании списка: \(error)")
         }
+    }
+}
+
+// MARK: - Firebase Status Component
+struct FirebaseStatusView: View {
+    @ObservedObject var firebaseManager: FirebaseManager
+    
+    var body: some View {
+        HStack {
+            Image(systemName: iconName)
+                .font(.caption)
+                .foregroundColor(iconColor)
+            
+            Text(statusText)
+                .font(.caption)
+                .foregroundColor(.secondary)
+            
+            Spacer()
+        }
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+    
+    private var iconName: String {
+        if !firebaseManager.isInitialized { return "xmark.circle" }
+        if firebaseManager.isConnected { return "checkmark.circle" }
+        return "wifi.exclamationmark"
+    }
+    
+    private var iconColor: Color {
+        if !firebaseManager.isInitialized { return .red }
+        if firebaseManager.isConnected { return .green }
+        return .orange
+    }
+    
+    private var statusText: String {
+        if !firebaseManager.isInitialized { return "Firebase не подключен" }
+        if firebaseManager.isConnected { return "Синхронизация активна" }
+        return "Соединение прервано"
     }
 }
 

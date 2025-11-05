@@ -4,10 +4,16 @@ import SwiftData
 struct OpenList: View {
     var list: ShoppingList
     @Environment(\.modelContext) private var modelContext
+    
     @State private var showingAddProductModal = false
     @State private var showingDeleteAlert = false
     @State private var productToDelete: Product?
     @State private var lastUpdateTime = Date()
+    
+    // Локальный ViewModel без StateObject
+    private var viewModel: ListViewModel {
+        ListViewModel(modelContext: modelContext)
+    }
     
     private var unpurchasedProducts: [Product] {
         list.products.filter { !$0.isPurchased }
@@ -83,45 +89,29 @@ struct OpenList: View {
     }
     
     private func syncList() {
+        viewModel.fetchLocalLists()
         lastUpdateTime = Date()
     }
     
     private func addProduct(title: String, description: String, image: String, expirationDays: Int) {
-        list.addProduct(
+        let product = Product(
             title: title,
             content: description,
             image: image,
             expirationDate: expirationDays
         )
-        saveContext()
+        viewModel.addProduct(to: list, product: product)
         lastUpdateTime = Date()
     }
     
     private func togglePurchase(_ product: Product) {
-        product.togglePurchase()
-        saveContext()
+        viewModel.toggleProductPurchase(product, in: list)
         lastUpdateTime = Date()
-        
-        if product.isPurchased {
-            NotificationManager.shared.scheduleExpirationNotification(for: product)
-        } else {
-            NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
-        }
     }
     
     private func deleteProduct(_ product: Product) {
-        NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
-        list.removeProduct(product)
-        saveContext()
+        viewModel.deleteProduct(product, from: list)
         lastUpdateTime = Date()
-    }
-    
-    private func saveContext() {
-        do {
-            try modelContext.save()
-        } catch {
-            print("Ошибка сохранения: \(error)")
-        }
     }
 }
 
