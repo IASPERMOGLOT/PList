@@ -7,6 +7,9 @@ struct CreateProductModal: View {
     @State private var expirationDays: Int = 7
     @State private var selectedImage: String = "cart"
     
+    var list: ShoppingList? // Делаем опциональным, чтобы работало и без списка
+    var onAddProduct: (String, String, String, Int) -> Void
+    
     private func getDayAddition(_ num: Int) -> String {
         let preLastDigit = num % 100 / 10
         
@@ -25,7 +28,6 @@ struct CreateProductModal: View {
     }
     
     let productImages = ["carrot.fill", "fish.fill", "birthday.cake.fill", "leaf.fill", "cart.fill", "takeoutbag.and.cup.and.straw.fill"]
-    var onAddProduct: (String, String, String, Int) -> Void
     
     var body: some View {
         NavigationView {
@@ -44,6 +46,17 @@ struct CreateProductModal: View {
                             Text("Новый продукт")
                                 .font(Font.custom("villula-regular", size: 24))
                                 .foregroundColor(.primary)
+                            
+                            if let list = list, list.isShared {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "person.2.fill")
+                                        .font(.caption)
+                                        .foregroundColor(.green)
+                                    Text("Совместный список")
+                                        .font(Font.custom("villula-regular", size: 14))
+                                        .foregroundColor(.green)
+                                }
+                            }
                         }
                         .padding(.top, 10)
                         
@@ -222,7 +235,12 @@ struct IconButton: View {
 }
 
 #Preview {
-    CreateProductModal(onAddProduct: { title, description, image, days in
-        print("Добавляем: \(title), \(description), \(image), \(days) дней")
-    })
+    let sampleList = ShoppingList(title: "Тестовый список", isShared: true)
+    
+    return CreateProductModal(
+        list: sampleList,
+        onAddProduct: { title, description, image, days in
+            print("Добавляем: \(title), \(description), \(image), \(days) дней")
+        }
+    )
 }

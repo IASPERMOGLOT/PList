@@ -20,5 +20,26 @@
             landmarkType = "3">
          </BreakpointContent>
       </BreakpointProxy>
+      <BreakpointProxy
+         BreakpointExtensionID = "Xcode.Breakpoint.AddressBreakpoint">
+         <BreakpointContent
+            uuid = "457F3428-6FB3-495D-B7F0-7EC9F9137A5C"
+            shouldBeEnabled = "Yes"
+            ignoreCount = "0"
+            continueAfterRunningActions = "No"
+            symbolName = "*0x1d8dfe344">
+            <Locations>
+               <Location
+                  uuid = "457F3428-6FB3-495D-B7F0-7EC9F9137A5C - d5846168a8197a76"
+                  shouldBeEnabled = "Yes"
+                  ignoreCount = "0"
+                  continueAfterRunningActions = "No"
+                  symbolName = "partial apply forwarder for closure #1 () -&gt; () in closure #2 () -&gt; () in SwiftUI.ContextMenuBridge.contextMenuInteraction(_: __C.UIContextMenuInteraction, willPerformPreviewActionForMenuWith: __C.UIContextMenuConfiguration, animator: __C.UIContextMenuInteractionCommitAnimating) -&gt; ()"
+                  moduleName = "SwiftUI"
+                  usesParentBreakpointCondition = "Yes">
+               </Location>
+            </Locations>
+         </BreakpointContent>
+      </BreakpointProxy>
    </Breakpoints>
 </Bucket>

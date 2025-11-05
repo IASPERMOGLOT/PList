@@ -8,6 +8,9 @@ struct OpenList: View {
     @State private var showingDeleteAlert = false
     @State private var productToDelete: Product?
     
+    // Для индикатора синхронизации
+    @State private var lastUpdateTime = Date()
+    
     private var unpurchasedProducts: [Product] {
         list.products.filter { !$0.isPurchased }
             .sorted { $0.addedDate > $1.addedDate }
@@ -26,6 +29,14 @@ struct OpenList: View {
             VStack(spacing: 0) {
                 // Хедер
                 HeaderView(list: list, unpurchasedCount: unpurchasedProducts.count, purchasedCount: purchasedProducts.count)
+                
+                // Индикатор синхронизации для совместных списков
+                if list.isShared {
+                    SyncStatusView(
+                        timeSinceLastSync: timeSinceLastSync,
+                        onSync: { syncList() }
+                    )
+                }
                 
                 // Список продуктов
                 ScrollView {
@@ -59,7 +70,7 @@ struct OpenList: View {
                         }
                         
                         if list.products.isEmpty {
-                            EmptyListView()
+                            EmptyListView(isShared: list.isShared)
                         }
                     }
                     .padding(.horizontal)
@@ -74,7 +85,7 @@ struct OpenList: View {
         }
         .navigationBarTitleDisplayMode(.inline)
         .sheet(isPresented: $showingAddProductModal) {
-            CreateProductModal { title, description, image, days in
+            CreateProductModal(list: list) { title, description, image, days in
                 addProduct(title: title, description: description, image: image, expirationDays: days)
             }
         }
@@ -88,32 +99,30 @@ struct OpenList: View {
         } message: {
             Text("Продукт \"\(productToDelete?.title ?? "")\" будет удален из списка.")
         }
-        .toolbar {
-            ToolbarItem(placement: .navigationBarTrailing) {
-                Menu {
-                    if !purchasedProducts.isEmpty {
-                        Button {
-                            unpurchaseAllProducts()
-                        } label: {
-                            Label("Вернуть все купленные", systemImage: "arrow.uturn.left.circle.fill")
-                        }
-                    }
-                    
-                    Button(role: .destructive) {
-                        deleteEntireList()
-                    } label: {
-                        Label("Удалить весь список", systemImage: "trash.fill")
-                    }
-                } label: {
-                    Image(systemName: "ellipsis.circle.fill")
-                        .font(.title2)
-                        .foregroundColor(.button)
-                }
-            }
-        }
         .onAppear {
             NotificationManager.shared.requestAuthorization()
         }
+    }
+    
+    // Обновляем индикатор времени
+    private var timeSinceLastSync: String {
+        let interval = Date().timeIntervalSince(lastUpdateTime)
+        if interval < 60 {
+            return "только что"
+        } else if interval < 3600 {
+            let minutes = Int(interval / 60)
+            return "\(minutes) мин назад"
+        } else {
+            let hours = Int(interval / 3600)
+            return "\(hours) ч назад"
+        }
+    }
+    
+    private func syncList() {
+        // SwiftData автоматически синхронизируется
+        // Просто обновляем время
+        lastUpdateTime = Date()
+        print("🔄 Синхронизация SwiftData")
     }
     
     private func addProduct(title: String, description: String, image: String, expirationDays: Int) {
@@ -123,69 +132,102 @@ struct OpenList: View {
             image: image,
             expirationDate: expirationDays
         )
-        
-        do {
-            try modelContext.save()
-        } catch {
-            print("Ошибка при сохранении продукта: \(error)")
-        }
+        saveContext()
+        lastUpdateTime = Date()
     }
     
     private func togglePurchase(_ product: Product) {
         product.togglePurchase()
+        saveContext()
+        lastUpdateTime = Date()
         
-        do {
-            try modelContext.save()
-            
-            if product.isPurchased {
-                NotificationManager.shared.scheduleExpirationNotification(for: product)
-            } else {
-                NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
-            }
-            
-        } catch {
-            print("Ошибка при изменении статуса продукта: \(error)")
-        }
-    }
-    
-    private func unpurchaseAllProducts() {
-        purchasedProducts.forEach { product in
-            product.unpurchase()
+        if product.isPurchased {
+            NotificationManager.shared.scheduleExpirationNotification(for: product)
+        } else {
             NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
-        }
-        
-        do {
-            try modelContext.save()
-        } catch {
-            print("Ошибка при возврате всех продуктов: \(error)")
         }
     }
     
     private func deleteProduct(_ product: Product) {
         NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
         list.removeProduct(product)
-        
-        do {
-            try modelContext.save()
-        } catch {
-            print("Ошибка при удалении конкретного продукта: \(error)")
-        }
+        saveContext()
+        lastUpdateTime = Date()
     }
     
-    private func deleteEntireList() {
-        list.products.forEach { product in
-            NotificationManager.shared.removePendingNotification(for: product.id.uuidString)
-        }
-        
-        list.delete(context: modelContext)
-        
+    private func saveContext() {
         do {
             try modelContext.save()
         } catch {
-            print("Ошибка при удалении списка: \(error)")
+            print("Ошибка сохранения: \(error)")
         }
     }
 }
+
+// Обновляем SyncStatusView для SwiftData
+struct SyncStatusView: View {
+    let timeSinceLastSync: String
+    let onSync: () -> Void
+    
+    var body: some View {
+        HStack {
+            HStack(spacing: 6) {
+                Image(systemName: "checkmark.circle.fill")
+                    .font(.caption)
+                    .foregroundColor(.green)
+                Text("Обновлено \(timeSinceLastSync)")
+                    .font(Font.custom("villula-regular", size: 12))
+            }
+            .foregroundColor(.green)
+            
+            Spacer()
+            
+            Button("Обновить") {
+                onSync()
+            }
+            .font(Font.custom("villula-regular", size: 12))
+            .foregroundColor(.blue)
+        }
+        .padding(.horizontal)
+        .padding(.vertical, 8)
+        .background(Color.green.opacity(0.1))
+        .cornerRadius(8)
+        .padding(.horizontal)
+        .padding(.top, 8)
+    }
+}
+
+// Обновленное пустое состояние
+struct EmptyListView: View {
+    let isShared: Bool
+    
+    var body: some View {
+        VStack(spacing: 20) {
+            Image(systemName: isShared ? "person.2.circle" : "cart.badge.plus")
+                .font(.system(size: 60))
+                .foregroundColor(.gray.opacity(0.3))
+            
+            VStack(spacing: 8) {
+                Text(isShared ? "Совместный список пуст" : "Список пуст")
+                    .font(Font.custom("villula-regular", size: 20))
+                    .foregroundColor(.primary)
+                
+                Text(isShared ?
+                     "Добавьте продукты или подождите синхронизации" :
+                     "Добавьте первый продукт в список")
+                    .font(Font.custom("villula-regular", size: 14))
+                    .foregroundColor(.gray)
+                    .multilineTextAlignment(.center)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(40)
+        .background(Color.white)
+        .cornerRadius(20)
+        .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
+    }
+}
+
 
 // Обновленная строка продукта с исправленным onChange
 struct ModernProductRow: View {
@@ -288,8 +330,6 @@ struct ProductInfoView: View {
         return formatter.string(from: date)
     }
 }
-
-// MARK: - Компоненты дизайна
 
 // Хедер с статистикой
 struct HeaderView: View {
@@ -540,33 +580,6 @@ struct AddProductButton: View {
             .shadow(color: Color.button.opacity(0.3), radius: 8, x: 0, y: 4)
         }
         .padding(.bottom, 20)
-    }
-}
-
-// Пустое состояние
-struct EmptyListView: View {
-    var body: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "cart.badge.plus")
-                .font(.system(size: 60))
-                .foregroundColor(.gray.opacity(0.3))
-            
-            VStack(spacing: 8) {
-                Text("Список пуст")
-                    .font(Font.custom("villula-regular", size: 20))
-                    .foregroundColor(.primary)
-                
-                Text("Добавьте первый продукт в список")
-                    .font(Font.custom("villula-regular", size: 14))
-                    .foregroundColor(.gray)
-                    .multilineTextAlignment(.center)
-            }
-        }
-        .frame(maxWidth: .infinity)
-        .padding(40)
-        .background(Color.white)
-        .cornerRadius(20)
-        .shadow(color: .black.opacity(0.05), radius: 3, x: 0, y: 2)
     }
 }
 

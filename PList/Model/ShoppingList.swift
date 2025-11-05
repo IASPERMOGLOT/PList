@@ -1,6 +1,5 @@
 import Foundation
 import SwiftData
-internal import CloudKit
 
 @Model
 class ShoppingList: Identifiable {
@@ -10,7 +9,9 @@ class ShoppingList: Identifiable {
     var createdAt: Date
     var shareCode: String?
     var isShared: Bool
-    var cloudKitRecordID: String?
+    var lastModified: Date
+    
+    // Связи
     @Relationship(deleteRule: .cascade) var users: [User]
     @Relationship(deleteRule: .cascade) var products: [Product]
     
@@ -24,32 +25,7 @@ class ShoppingList: Identifiable {
         self.users = users
         self.products = products
         self.createdAt = Date()
-    }
-}
-
-// MARK: - CloudKit Extension
-extension ShoppingList {
-    var cloudKitRecord: CKRecord {
-        let record: CKRecord
-        if let recordID = cloudKitRecordID {
-            record = CKRecord(recordType: "SharedList", recordID: CKRecord.ID(recordName: recordID))
-        } else {
-            record = CKRecord(recordType: "SharedList")
-            cloudKitRecordID = record.recordID.recordName
-        }
-        
-        record["title"] = title
-        record["shareCode"] = shareCode
-        record["isShared"] = isShared ? 1 : 0
-        record["createdAt"] = createdAt
-        
-        return record
-    }
-    
-    func update(from record: CKRecord) {
-        title = record["title"] as? String ?? title
-        shareCode = record["shareCode"] as? String
-        isShared = (record["isShared"] as? Int ?? 0) == 1
+        self.lastModified = Date()
     }
 }
 
@@ -66,23 +42,30 @@ extension ShoppingList {
         let newProduct = Product(title: title, content: content, image: image, expirationDate: expirationDate)
         products.append(newProduct)
         productCount = products.count
+        lastModified = Date()
     }
     
     func removeProduct(_ product: Product) {
         if let index = products.firstIndex(where: { $0.id == product.id }) {
             products.remove(at: index)
             productCount = products.count
+            lastModified = Date()
         }
     }
     
     func addUser(_ user: User) {
         if !users.contains(where: { $0.id == user.id }) {
             users.append(user)
+            lastModified = Date()
         }
     }
     
     func delete(context: ModelContext) {
         context.delete(self)
+    }
+    
+    func markAsModified() {
+        lastModified = Date()
     }
     
     private static func generateShareCode() -> String {
